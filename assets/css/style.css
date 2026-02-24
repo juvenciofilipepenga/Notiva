@@ -12,6 +12,7 @@
   --bg-input: #121212;
   --bg-input-alt: #1a1a1a;
   --bg-search: #f2f2f2;
+  --bg-wht-input:#f2f2f2;
 
   --border-color: #1f1f1f;
   --border-dark: #1a1a1a;
@@ -94,7 +95,6 @@
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
-
   transition: background 0.4s ease, color 0.4s ease;
 }
 
@@ -495,11 +495,10 @@ header {
 
 .settings-panel {
   position: fixed;
-  bottom: 30px;
+  bottom:40px;
   left: 0;
   width: 100%;
-  height: 80%;
-  /* padding-bottom: 20px; */
+  height: 85%;
   background: var(--bg-header);
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
@@ -967,6 +966,7 @@ left: 0;
   color: var(--text-secondary);
 }
 
+
 /* CONTENT */
 .view-content-wrapper {
   flex: 1;
@@ -1072,6 +1072,11 @@ left: 0;
   font-weight: 600;
   margin-bottom: 20px;
 }
+.install-btn {
+  background: var(--accent);
+  color:white;
+  font-weight: 600;
+  }
 
 #favoriteNoteBtn {
   transition: 0.2s ease;
@@ -1080,4 +1085,654 @@ left: 0;
 #favoriteNoteBtn.favorite-active {
   color: #ff3b5c;
   transform: scale(1.15);
+}
+
+
+
+/* ===== Modal ===== */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.modal.hidden { display: none; }
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(10px);
+  transition: opacity 0.3s ease;
+}
+
+.modal-content {
+  position: relative;
+  background: rgba(255,255,255,0.95);
+  border-radius: 12px;
+  padding: 30px 25px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* ===== Buttons ===== */
+.btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+.btn-primary { background-color: #4f46e5; color: #fff; border: none; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn:hover:not(:disabled) { transform: translateY(-2px); }
+
+/* ===== Step container ===== */
+.step-container h2 {
+  margin-bottom: 10px;
+  font-size: 1.6rem;
+  color: #111; /* título escuro */
+}
+
+.step-container p,
+.step-container label {
+  font-size: 1rem;
+  color: #333; /* texto normal */
+}
+
+/* Inputs, selects e textareas */
+input, select, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  margin-top: 6px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #111;           /* texto do usuário mais leve */
+  background: #fdfdfd;   /* fundo claro e clean */
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #6c63ff;  /* borda em destaque */
+  box-shadow: 0 0 5px rgba(108, 99, 255, 0.3);
+}
+
+/* Textarea específico */
+textarea {
+  resize: none;
+  min-height: 80px;
+}
+
+/* Botões de tipo e tema */
+.type-btn, .theme-btn {
+  margin: 6px 4px 6px 0;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.type-btn:hover, .theme-btn:hover {
+  background: #e0e0ff;
+  transform: scale(1.05);
+}
+/* CSS global para a etapa de termos */
+.terms-label {
+  display: flex;
+  align-items: center;       /* Alinha verticalmente */
+  gap: 10px;                 /* Espaço entre checkbox e texto */
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.terms-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #4f46e5;     /* Cor moderna para o check */
+}
+.scroll-box {
+  height: 220px;
+  overflow: auto;
+  border: 1px solid #ccc;
+  padding: 15px;
+  text-align: justify;
+  border-radius: 8px;
+  backdrop-filter: blur(6px); /* Efeito blur profissional */
+}
+
+/* Estilo moderno para etapa de perfil */
+.profile-step {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  backdrop-filter: blur(6px); /* Fundo borrado */
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2); /* leve transparência */
+}
+
+.profile-step h2 {
+  font-size: 22px;
+  color: #1f2937; /* tom de texto moderno */
+  margin-bottom: 10px;
+}
+
+.profile-step input[type="text"] {
+  padding: 12px 15px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: 0.2s all;
+  background-color: rgba(255,255,255,0.5);
+  color: #111827;
+}
+
+.profile-step input[type="text"]:focus {
+  border-color: #4f46e5; /* destaque */
+  box-shadow: 0 0 8px rgba(79,70,229,0.4);
+}
+
+.profile-step small {
+  color: #dc2626; /* vermelho para erro */
+  display: none;
+  font-size: 14px;
+}
+
+/* =========================
+   ONBOARDING MODAL
+========================= */
+
+#onboardingModal {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #f9fafb, #eef2ff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
+}
+
+#onboardingModal.hidden {
+  display: none;
+}
+
+/* =========================
+   WRAPPER
+========================= */
+
+.onboarding-wrapper {
+  width: 100%;
+  max-width: 480px;
+  padding: 40px 30px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 35px;
+}
+
+/* =========================
+   STEP CONTAINER
+========================= */
+
+.step-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 180px;
+}
+
+/* =========================
+   PROGRESS DOTS
+========================= */
+
+.onboarding-progress {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.onboarding-progress label {
+  cursor: default;
+}
+
+.onboarding-progress input {
+  display: none;
+}
+
+.onboarding-progress span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #d1d5db;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.onboarding-progress input:checked + span {
+  width: 20px;
+  background: #4f46e5;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+
+.onboarding-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* =========================
+   BUTTONS (SUA BASE MELHORADA)
+========================= */
+
+.btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.btn-primary {
+  background-color: #4f46e5;
+  color: #fff;
+  border: none;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+/* =========================
+   TYPOGRAPHY
+========================= */
+
+.step-container h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.step-container p,
+.step-container label {
+  font-size: 0.95rem;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+/* =========================
+   INPUTS
+========================= */
+
+input, select, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
+  outline: none;
+}
+
+textarea {
+  resize: none;
+  min-height: 90px;
+}
+
+/* =========================
+   TYPE / THEME BUTTONS
+========================= */
+
+/* =========================
+   ONBOARDING MODE BUTTONS
+========================= */
+
+#onboardingModal .type-btn,
+#onboardingModal .theme-btn {
+  
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  
+  border: 2px solid #e5e7eb;
+  background: #ffffff;
+  
+  color: #111827;
+  font-weight: 600;
+  font-size: 15px;
+  
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* HOVER */
+#onboardingModal .type-btn:hover,
+#onboardingModal .theme-btn:hover {
+  border-color: #6366f1;
+  background: #f5f7ff;
+}
+
+/* ESTADO ATIVO — AGORA FICA IMPOSSÍVEL NÃO VER */
+#onboardingModal .type-btn.active,
+#onboardingModal .theme-btn.active {
+  
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  border-color: #4f46e5;
+  
+  color: #ffffff;
+  
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.25);
+  transform: scale(1.03);
+}
+
+.type-btn:hover,
+.theme-btn:hover {
+  background: #eef2ff;
+  border-color: #4f46e5;
+}
+#onboardingModal .type-btn.active::after,
+#onboardingModal .theme-btn.active::after {
+  content: "✓";
+  margin-left: 8px;
+  font-weight: bold;
+}
+/* =========================
+   TERMS BOX
+========================= */
+
+.scroll-box {
+  max-height: 220px;
+  overflow-y: auto;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  padding: 15px;
+  font-size: 14px;
+  background: #f9fafb;
+}
+/* ========================= */
+/* ONBOARDING PREMIUM STYLE */
+/* ========================= */
+
+.onboarding-wrapper {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.step-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.step-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #00d4ff);
+  box-shadow: 0 10px 20px rgba(0,212,255,0.4);
+}
+
+.step-icon svg {
+  width: 32px;
+  height: 32px;
+  color: #fff;
+}
+
+.step-body input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb; /* fundo claro */
+  color: #111827; /* texto escuro elegante */
+  font-size: 15px;
+}
+
+.step-body input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 4px rgba(79,70,229,0.1);
+}
+.onboarding-progress {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 20px 0;
+}
+.step-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.onboarding-progress input {
+  display: none;
+}
+
+.onboarding-progress span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-color);
+  transition: 0.3s;
+}
+
+.onboarding-progress input:checked + span {
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+}
+
+.onboarding-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* =========================
+   TERMS STEP PREMIUM
+========================= */
+
+.terms-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.scroll-box {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.scroll-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll-box::-webkit-scrollbar-thumb {
+  background: #c7d2fe;
+  border-radius: 10px;
+}
+
+.terms-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.terms-label input {
+  width: 18px;
+  height: 18px;
+  accent-color: #4f46e5;
+}
+
+/* Loader exclusivo - círculo giratório */
+.spinner-circle {
+  border: 6px solid rgba(0, 0, 0, 0.1);  /* fundo do círculo */
+  border-top: 6px solid #00d4ff;          /* cor do spinner */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin-circle 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin-circle {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* =========================
+   QUESTIONS STEP OPTIONS
+========================= */
+
+.question-block {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 10px;
+}
+
+.question-block label {
+  font-weight: 600;
+  font-size: 15px;
+  color: #111827;
+}
+
+/* Container das opções */
+.option-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* Botão opção estilo card */
+.option-btn {
+  padding: 16px;
+  border-radius: 16px;
+  border: 2px solid #e5e7eb;
+  background: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  color: #111827;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+/* Hover */
+.option-btn:hover {
+  border-color: #6366f1;
+  background: #f5f7ff;
+  transform: translateY(-2px);
+}
+
+/* Estado ativo */
+.option-btn.active {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  border-color: #4f46e5;
+  color: #ffffff;
+  box-shadow: 0 12px 30px rgba(79,70,229,0.25);
+  transform: scale(1.02);
+}
+
+/* Ícone de check no ativo */
+.option-btn.active::after {
+  content: "✓";
+  position: absolute;
+  right: 16px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* =========================
+   CAMPO "OUTRO"
+========================= */
+
+#otherContainer {
+  animation: fadeSlideIn 0.25s ease forwards;
+}
+
+#otherInput {
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+#otherInput:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 4px rgba(79,70,229,0.12);
+  background: #ffffff;
+}
+
+/* Erro */
+#otherError {
+  font-size: 13px;
+  margin-top: 6px;
+  color: #dc2626;
+}
+
+/* =========================
+   ANIMAÇÃO
+========================= */
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

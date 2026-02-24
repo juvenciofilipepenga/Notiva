@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  
-  <!---trashTab--->
 
   <!-- ========================= -->
   <!-- META BÁSICAS -->
@@ -29,11 +27,7 @@
   <meta property="og:locale" content="pt_MZ">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/style.css">
-
-  <!-- Ícones Lucide -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
 <body>
@@ -236,7 +230,7 @@
     </button>
 
     <button class="settings-btn" id="exportBtn">
-      <i data-lucide="file-json"></i>
+      <i data-lucide="download"></i>
       Exportar Notas
     </button>
 
@@ -324,6 +318,7 @@
       <h2 id="viewTitle"></h2>
 
     </div>
+    
 
     <!-- META -->
     <div class="view-meta-section">
@@ -360,21 +355,46 @@
 <span id="editedBadge" class="edited-badge hidden">Editado</span>
 </div>
 
-
-<!-- ========================= -->
+<div id="onboardingModal" class="modal hidden">
+  <div class="modal-backdrop"></div>
+  
+  <div class="modal-content onboarding-wrapper">
+    
+    <!-- Step container -->
+    <div id="onboardingStep" class="step-container"></div>
+    
+    <!-- Progress -->
+    <div class="onboarding-progress" id="onboardingProgress">
+      <label><input type="radio" name="progress"><span></span></label>
+      <label><input type="radio" name="progress"><span></span></label>
+      <label><input type="radio" name="progress"><span></span></label>
+      <label><input type="radio" name="progress"><span></span></label>
+      <label><input type="radio" name="progress"><span></span></label>
+      <label><input type="radio" name="progress"><span></span></label>
+    </div>
+    
+    <!-- Actions -->
+    <div class="onboarding-actions">
+      <button id="prevBtn" class="btn">Voltar</button>
+      <button id="nextBtn" class="btn btn-primary">Próximo</button>
+    </div>
+    
+  </div>
+</div>
 <!-- SCRIPTS EXTERNOS -->
-<!-- ========================= -->
+<script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 
 <!-- Script Principal -->
-<script src="js/main.js" defer></script>
-
-<!-- Inicialização dos Ícones -->
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    lucide.createIcons();
-  });
+<!-- =========================
+     SCRIPTS SIMPLIFICADOS
+     No final do body
+========================= -->
+<script type="text/javascript" charset="utf-8" src="assets/js/main.js">
+  
+</script>
+<script src="assets/js/onbroad.js" defer>
 </script>
 </body>
 </html>

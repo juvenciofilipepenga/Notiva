@@ -36,7 +36,83 @@ function toggleSelection(noteId, element) {
   updateSelectionUI();
 }
 
+function createWelcomeNote() {
+  const tx = db.transaction("notes", "readonly");
+  const store = tx.objectStore("notes");
 
+  const getAll = store.getAll();
+  getAll.onsuccess = () => {
+    const notes = getAll.result || [];
+
+    // Se NÃO houver nenhuma nota, cria a nota de instruções
+    if (notes.length === 0) {
+      const writeTx = db.transaction("notes", "readwrite");
+      const writeStore = writeTx.objectStore("notes");
+
+      writeStore.add({
+        title: " Bem‑vindo ao Notiva!",
+        content: ` Bem‑vindo ao Notiva — Seu Centro de Organização 
+
+Esta nota de instruções foi criada automática para te ajudar a começar com o Notiva. Você pode apagá‑la a qualquer momento ou editá‑la como quiser.
+
+🧭 **Como usar o Notiva**
+
+📌 1) Criar uma Nota  
+- Toque no botão ➕ na barra inferior para adicionar uma nova nota.  
+- Preencha o Título, Disciplina e o Conteúdo.  
+- Toque em “Salvar”.
+
+🔎 2) Pesquisar notas  
+- Use a barra de pesquisa no topo para encontrar notas por título, assunto ou conteúdo.
+
+⭐ 3) Favoritos  
+- Toque em ⭐ dentro da visualização da nota para marcar como favorita.  
+- Use o ícone ❤️ no menu inferior para ver apenas seus favoritos.
+
+🗑 4) Lixeira  
+- Ao apagar uma nota, ela vai para a Lixeira.  
+- Na Lixeira, você pode:
+   ↻ Restaurar notas apagadas  
+   🗑 Apagar permanentemente
+
+📁 5) Exportar e Importar  
+Dentro das configurações:
+- **Exportar como JSON** — backup completo das suas notas.  
+- **Exportar como PDF** — relatório pronto para impressão.  
+- **Importar JSON** — restaurar um backup antigo.
+
+🎨 6) Tema  
+- Escolha entre **Dark** e **Light** para combinar com seu estilo.
+
+👤 7) Perfil  
+- Defina seu nome nas configurações para personalizar o app.  
+- O ID é gerado automaticamente.
+
+🔄 8) Instalar App  
+- Na mesma área de configurações, use **Instalar App** para transformar o Notiva em um app progressivo no seu dispositivo.
+
+🔗 Links úteis  
+📘 Documentação e Guia:https://pengajuvencio830-eng.github.io/notiva-app/
+
+📩 Suporte: notiva@gmail.com
+
+💡 **Dica profissional:**  
+Sempre mantenha backups regulares usando **Exportar JSON**. Assim você tem segurança extra mesmo se limpar o cache do navegador.
+
+ Aproveite sua experiência com o Notiva! `,
+        subject: "Introdução",
+        createdAt: Date.now(),
+        favorite: true,
+        deleted: false
+      });
+
+      writeTx.oncomplete = () => {
+        renderNotes();
+        showToast("📝 Nota de instruções criada com sucesso!");
+      };
+    }
+  };
+}
 function editSelected() {
   if (selectedNotes.size !== 1) return;
   
@@ -198,15 +274,16 @@ function escapeHTML(str = "") {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 }
-//renderNotes 
-
 request.onsuccess = e => {
   db = e.target.result;
+
+  // Cria a nota de boas-vindas se não houver nenhuma
+  createWelcomeNote();
+
   renderNotes();
   
   checkVisitorStatus(); 
 };
-
 function showLoading() {
   document.getElementById("loading").classList.remove("hidden");
 }
@@ -298,7 +375,7 @@ if (header) {
       currentView === "trash" ?
       "🗑 Lixeira" :
       currentView === "favorites" ?
-      "⭐ Favoritos" :
+      "ki Favoritos" :
       "Notas";
     
     header.style.opacity = 1;
@@ -353,7 +430,7 @@ ${
   currentView === "trash"
     ? "Lixeira vazia"
     : currentView === "favorites"
-    ? "Nenhum favorito ainda ❤️"
+    ? "Nenhum favorito ainda"
     : "Nenhuma nota ainda"
 }
 </span>
@@ -632,23 +709,26 @@ saveProfileBtn.addEventListener("click", (e) => {
   e.preventDefault();
   const name = profileNameInput.value.trim();
   if (!name) return;
-
-  let existing = JSON.parse(localStorage.getItem("notivaProfile"));
-
-  const profileData = {
-    name: name,
-    id: existing?.id || generateId()
-  };
-
-  localStorage.setItem("notivaProfile", JSON.stringify(profileData));
-
-  displayName.textContent = profileData.name;
-  profileIdSpan.textContent = profileData.id;
-
+  
+  const existing = JSON.parse(localStorage.getItem("notivaProfile"));
+  
+  if (!existing) {
+    showToast("Não é possível criar perfil aqui. Use o onboarding.");
+    return;
+  }
+  
+  // Apenas atualizar o nome
+  existing.name = name;
+  
+  localStorage.setItem("notivaProfile", JSON.stringify(existing));
+  
+  displayName.textContent = existing.name;
+  profileIdSpan.textContent = existing.id;
+  
   profileForm.classList.add("hidden");
   profileDisplay.classList.remove("hidden");
-
-  showToast("Perfil atualizado");
+  
+  showToast("Nome atualizado com sucesso");
 });
 
 editProfileBtn.addEventListener("click", () => {
@@ -1026,7 +1106,7 @@ function checkVisitorStatus() {
   const greeted = localStorage.getItem("notivaGreeted");
 
   if (!profile && !greeted) {
-    showToast("🎉 Parabéns por usar o Notiva!");
+    showToast(" Parabéns por usar o Notiva!");
     
     setTimeout(() => {
       showToast("👋 Grave seu nome nas definições.");
@@ -1193,9 +1273,30 @@ if (deleteBtn) {
   ========================== */
   
   document.getElementById("viewTitle").textContent = note.title;
-  document.getElementById("viewSubject").textContent = note.subject || "";
-  document.getElementById("viewContent").textContent = note.content;
-  
+document.getElementById("viewSubject").textContent = note.subject || "";
+document.getElementById("viewContent").textContent = note.content;
+
+const metaElement = document.getElementById("viewMeta");
+
+if (note.updatedAt) {
+  metaElement.textContent =
+    "Atualizado em " +
+    new Date(note.updatedAt).toLocaleDateString() +
+    " às " +
+    new Date(note.updatedAt).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+} else {
+  metaElement.textContent =
+    "Criado em " +
+    new Date(note.createdAt).toLocaleDateString() +
+    " às " +
+    new Date(note.createdAt).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+}
   modal.classList.remove("hidden");
 }
 function toggleFavorite(id) {
@@ -1264,7 +1365,6 @@ function shareNote(id) {
     }
   };
 }
-//renderNotes
 lucide.createIcons();
 
 if ("serviceWorker" in navigator) {
@@ -1285,7 +1385,7 @@ window.addEventListener("beforeinstallprompt", (e) => {
 
 installBtn.addEventListener("click", async () => {
   if (!deferredPrompt) {
-    alert("Instalação ainda não disponível");
+    alert("App instalado ou internet fraca!");
     return;
   }
 
@@ -1298,3 +1398,358 @@ window.addEventListener('appinstalled', () => {
   showToast('App instalado com sucesso');
   installBtn.style.display = 'none';
 });
+
+//Start config Application 
+
+const modal = document.getElementById("onboardingModal");
+const stepContainer = document.getElementById("onboardingStep");
+const nextBtn = document.getElementById("nextBtn");
+
+let currentStep = 0;
+
+let userData = {
+  type: null,
+  profile: {},
+  theme: null,
+  agreed: false
+};
+
+const steps = [
+  "presentation",
+  "terms",
+  "type",
+  "questions",
+  "profile",
+  "theme",
+  "finalize"
+];
+
+
+function saveUserData() {
+  const profile = {
+    id: JSON.parse(localStorage.getItem("notivaProfile"))?.id || generateId(),
+    name: userData.profile.name || "Usuário",
+    type: userData.type || "other",
+    agreed: userData.agreed || false,
+  };
+  
+  localStorage.setItem("notivaProfile", JSON.stringify(profile));
+  
+  if (userData.theme) {
+    changeTheme(userData.theme);
+  }
+  
+  displayName.textContent = profile.name;
+  profileIdSpan.textContent = profile.id;
+}
+
+/* ===============================
+   INICIAR
+================================ */
+
+function startOnboarding() {
+  currentStep = 0;
+  userData = {
+    type: null,
+    profile: {},
+    theme: null,
+    agreed: false
+  };
+
+  modal.classList.remove("hidden");
+  renderStep();
+}
+
+/* ===============================
+   RENDER STEP
+================================ */
+
+function renderStep() {
+  nextBtn.disabled = true;
+  stepContainer.innerHTML = "";
+
+  const step = steps[currentStep];
+
+  switch(step) {
+
+    /* ================= PRESENTATION ================= */
+
+    case "presentation":
+      stepContainer.innerHTML = `
+        <div style="text-align:center;">
+          <img src="../icons/icon-192.png" style="width:150px;margin-bottom:25px;">
+          <h2>Bem-vindo ao Notiva</h2>
+          <p>Organize suas informações com estrutura e clareza.</p>
+        </div>
+      `;
+      nextBtn.disabled = false;
+      break;
+
+    /* ================= TERMS ================= */
+
+    case "terms":
+      stepContainer.innerHTML = `
+        <h2>Regras de Utilização</h2>
+        <div id="termsBox" style="height:220px;overflow:auto;border:1px solid #ccc;padding:15px;text-align:justify;">
+          <p><strong>1.</strong> Todas as informações são armazenadas localmente no seu dispositivo.</p>
+          <p><strong>2.</strong> Notas excluídas podem ser restauradas na lixeira.</p>
+          <p><strong>3.</strong> É possível exportar backups em JSON e relatórios em PDF.</p>
+          <p><strong>4.</strong> O usuário é responsável por manter seus backups seguros.</p>
+          <p><strong>5.</strong> Configurações de perfil e tema são salvas localmente.</p>
+          <p><strong>6.</strong> Ao limpar dados do navegador, informações podem ser removidas.</p>
+          <p><strong>7.</strong> O uso do aplicativo implica concordância com estas regras.</p>
+        </div>
+<label style="display: flex; align-items: center; margin-top: 15px; justify-content: flex-start; gap: 10px; width: 100%;">
+  <input 
+    type="checkbox" 
+    id="agreeTerms" 
+    style="width: auto; height: 18px; min-width: 18px; cursor: pointer;"
+  >
+  <span style="font-size: 1rem; color: #333;">Concordo com as regras acima</span>
+</label>
+      `;
+
+      const box = document.getElementById("termsBox");
+      const check = document.getElementById("agreeTerms");
+
+      box.addEventListener("scroll", () => {
+        if (box.scrollTop + box.clientHeight >= box.scrollHeight - 5) {
+          check.disabled = false;
+        }
+      });
+
+      check.disabled = true;
+
+      check.addEventListener("change", (e)=>{
+        userData.agreed = e.target.checked;
+        nextBtn.disabled = !e.target.checked;
+      });
+
+      break;
+
+    /* ================= TYPE ================= */
+
+    case "type":
+      stepContainer.innerHTML = `
+        <h2>Tipo de Utilização</h2>
+        <button class="type-btn" data-type="student">Estudante</button>
+        <button class="type-btn" data-type="company">Empresa</button>
+        <button class="type-btn" data-type="church">Igreja</button>
+        <button class="type-btn" data-type="other">Outros</button>
+      `;
+
+      document.querySelectorAll(".type-btn").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          userData.type = btn.dataset.type;
+          nextBtn.disabled = false;
+        });
+      });
+
+      break;
+
+    /* ================= QUESTIONS ================= */
+
+    case "questions":
+      renderQuestions();
+      break;
+
+    /* ================= PROFILE ================= */
+
+    case "profile":
+      stepContainer.innerHTML = `
+        <h2>Perfil</h2>
+        <input type="text" id="profileName" placeholder="Digite seu nome completo">
+        <small id="profileError" style="color:red;display:none;">Nome inválido</small>
+      `;
+
+      const input = document.getElementById("profileName");
+      const error = document.getElementById("profileError");
+
+      input.addEventListener("input", ()=>{
+        const value = input.value.trim();
+
+        if (value.length >= 3 && /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/.test(value)) {
+          error.style.display = "none";
+          nextBtn.disabled = false;
+          userData.profile.name = value;
+        } else {
+          error.style.display = "block";
+          nextBtn.disabled = true;
+        }
+      });
+
+      break;
+
+    /* ================= THEME ================= */
+
+    case "theme":
+      stepContainer.innerHTML = `
+        <h2>Tema</h2>
+        <button class="theme-btn" data-theme="light">Light</button>
+        <button class="theme-btn" data-theme="dark">Dark</button>
+        <button class="theme-btn" data-theme="skip">Ignorar</button>
+      `;
+
+      document.querySelectorAll(".theme-btn").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const val = btn.dataset.theme;
+          userData.theme = val === "skip" ? null : val;
+          nextBtn.disabled = false;
+        });
+      });
+
+      break;
+
+    /* ================= FINALIZE ================= */
+
+    /* ================= FINALIZE ================= */
+case "finalize":
+stepContainer.innerHTML = `
+    <h2>Preparando seu ambiente...</h2>
+    <p>Configurando suas preferências...</p>
+    <button id="processBtn" style="padding:12px 20px;background:#2962ff;color:white;border:none;border-radius:8px;cursor:default;">Processando...</button>
+  `;
+
+const processBtn = document.getElementById("processBtn");
+
+// Animação respirando
+const breatheAnim = processBtn.animate([
+  { transform: "scale(1)" },
+  { transform: "scale(1.05)" },
+  { transform: "scale(1)" }
+], { duration: 1000, iterations: Infinity, easing: "ease-in-out" });
+  
+
+
+setTimeout(() => {
+  breatheAnim.cancel();
+  
+  // Salva tudo
+  saveUserData();
+  
+  // Fecha modal e inicia app
+  modal.classList.add("hidden");
+  showToast(" Bem-vindo ao Notiva!");
+  renderNotes();
+}, 3000);
+break;
+  }
+}
+
+/* ===============================
+   QUESTIONS BY TYPE
+================================ */
+
+function renderQuestions(){
+
+  stepContainer.innerHTML = "";
+  nextBtn.disabled = true;
+
+  if(userData.type === "student"){
+
+    stepContainer.innerHTML = `
+      <h2>Informações Acadêmicas</h2>
+      <select id="studentLevel">
+        <option value="">Selecione...</option>
+        <option value="highschool">Ensino Secundário</option>
+        <option value="college">Faculdade</option>
+      </select>
+    `;
+
+    document.getElementById("studentLevel")
+      .addEventListener("change",(e)=>{
+        if(e.target.value){
+          userData.profile.level = e.target.value;
+          nextBtn.disabled = false;
+        }
+      });
+  }
+
+  else if(userData.type === "company"){
+
+    stepContainer.innerHTML = `
+      <h2>Informações da Empresa</h2>
+      <input type="text" id="companyName" placeholder="Nome da empresa">
+      <input type="text" id="companySector" placeholder="Setor">
+    `;
+
+    const name = document.getElementById("companyName");
+    const sector = document.getElementById("companySector");
+
+    function validate(){
+      if(name.value.trim() && sector.value.trim()){
+        userData.profile.companyName = name.value.trim();
+        userData.profile.sector = sector.value.trim();
+        nextBtn.disabled = false;
+      } else {
+        nextBtn.disabled = true;
+      }
+    }
+
+    name.addEventListener("input", validate);
+    sector.addEventListener("input", validate);
+  }
+
+  else if(userData.type === "church"){
+
+    stepContainer.innerHTML = `
+      <h2>Informações da Igreja</h2>
+      <input type="text" id="churchName" placeholder="Nome da igreja">
+      <input type="text" id="churchLeader" placeholder="Líder principal">
+    `;
+
+    const name = document.getElementById("churchName");
+    const leader = document.getElementById("churchLeader");
+
+    function validate(){
+      if(name.value.trim() && leader.value.trim()){
+        userData.profile.churchName = name.value.trim();
+        userData.profile.churchLeader = leader.value.trim();
+        nextBtn.disabled = false;
+      } else {
+        nextBtn.disabled = true;
+      }
+    }
+
+    name.addEventListener("input", validate);
+    leader.addEventListener("input", validate);
+  }
+
+  else if(userData.type === "other"){
+
+    stepContainer.innerHTML = `
+      <h2>Descreva o uso</h2>
+      <textarea id="otherDescription"></textarea>
+    `;
+
+    const desc = document.getElementById("otherDescription");
+
+    desc.addEventListener("input", ()=>{
+      if(desc.value.trim()){
+        userData.profile.description = desc.value.trim();
+        nextBtn.disabled = false;
+      }
+    });
+  }
+}
+
+/* ===============================
+   NEXT BUTTON
+================================ */
+
+nextBtn.addEventListener("click", ()=>{
+  if(currentStep < steps.length - 1){
+    currentStep++;
+    renderStep();
+  }
+});
+
+/* ===============================
+   AUTO START
+================================ */
+
+if(!localStorage.getItem("notivaOnboarded")){
+  startOnboarding();
+}
+
+//saveProfileBtn
